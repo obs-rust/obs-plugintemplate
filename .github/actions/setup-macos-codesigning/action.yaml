@@ -10,6 +10,10 @@ inputs:
   codesignCertificate:
     description: PKCS12 certificate in base64 format
     required: true
+  installerCertificate:
+    description: PKCS12 Developer ID Installer certificate in base64 format
+    required: false
+    default: ''
   certificatePassword:
     description: Password required to install PKCS12 certificate
     required: true
@@ -65,6 +69,7 @@ runs:
         MACOS_SIGNING_IDENTITY_INSTALLER: ${{ inputs.installerIdentity}}
         MACOS_SIGNING_CERT: ${{ inputs.codesignCertificate }}
         MACOS_SIGNING_CERT_PASSWORD: ${{ inputs.certificatePassword }}
+        MACOS_SIGNING_INSTALLER_CERT: ${{ inputs.installerCertificate }}
         MACOS_KEYCHAIN_PASSWORD: ${{ inputs.keychainPassword }}
       run: |
         : macOS Code Signing ✍️
@@ -88,6 +93,13 @@ runs:
           security import "${certificate_path}" -P "${MACOS_SIGNING_CERT_PASSWORD}" -A \
             -t cert -f pkcs12 -k ${keychain_path} \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/xcrun
+
+          if [[ ${MACOS_SIGNING_INSTALLER_CERT} ]] {
+            print -n "${MACOS_SIGNING_INSTALLER_CERT}" | base64 --decode --output=${RUNNER_TEMP}/installer_certificate.p12
+            security import "${RUNNER_TEMP}/installer_certificate.p12" -P "${MACOS_SIGNING_CERT_PASSWORD}" -A \
+              -t cert -f pkcs12 -k ${keychain_path} \
+              -T /usr/bin/productsign -T /usr/bin/productbuild -T /usr/bin/security
+          }
 
           security set-key-partition-list -S 'apple-tool:,apple:' -k "${MACOS_KEYCHAIN_PASSWORD}" \
             ${keychain_path} &> /dev/null

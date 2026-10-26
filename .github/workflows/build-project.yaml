@@ -128,6 +128,7 @@ jobs:
           codesignIdentity: ${{ secrets.MACOS_SIGNING_APPLICATION_IDENTITY }}
           installerIdentity: ${{ secrets.MACOS_SIGNING_INSTALLER_IDENTITY }}
           codesignCertificate: ${{ secrets.MACOS_SIGNING_CERT }}
+          installerCertificate: ${{ secrets.MACOS_SIGNING_INSTALLER_CERT }}
           certificatePassword: ${{ secrets.MACOS_SIGNING_CERT_PASSWORD }}
           keychainPassword: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
           provisioningProfile: ${{ secrets.MACOS_SIGNING_PROVISIONING_PROFILE }}
